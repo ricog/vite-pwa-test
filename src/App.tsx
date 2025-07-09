@@ -1,9 +1,16 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(() => {
+    const savedCount = localStorage.getItem('pwa-counter')
+    return savedCount ? parseInt(savedCount, 10) : 0
+  })
+
+  useEffect(() => {
+    localStorage.setItem('pwa-counter', count.toString())
+  }, [count])
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -34,6 +41,7 @@ function App() {
         <div className="mt-6 p-4 bg-green-50 rounded-lg">
           <p className="text-green-700 font-semibold">PWA Ready!</p>
           <p className="text-green-600 text-sm">This app works offline and can be installed</p>
+          <p className="text-green-600 text-sm">Counter persists when you close and reopen the app</p>
         </div>
       </div>
     </div>
