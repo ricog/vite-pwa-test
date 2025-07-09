@@ -1,0 +1,86 @@
+name: Deploy to Cloud Run
+
+on:
+  push:
+    branches: [ main ]
+  workflow_run:
+    workflows: ["CI/CD"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    
+    environment: production
+    
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup Google Cloud CLI
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        service_account_key: ${{ secrets.GCP_SA_KEY }}
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+        export_default_credentials: true
+    
+    - name: Configure Docker to use gcloud as credential helper
+      run: gcloud auth configure-docker
+    
+    - name: Build and push Docker image
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        IMAGE_NAME: vite-pwa-test
+        REGION: us-central1
+      run: |
+        # Build the Docker image
+        docker build -t gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:$GITHUB_SHA .
+        docker build -t gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:latest .
+        
+        # Push the Docker image to Google Container Registry
+        docker push gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:$GITHUB_SHA
+        docker push gcr.io/$GCP_PROJECT_ID/$IMAGE_NAME:latest
+    
+    - name: Deploy to Cloud Run
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        SERVICE_NAME: vite-pwa-test
+        REGION: us-central1
+      run: |
+        gcloud run deploy $SERVICE_NAME \
+          --image gcr.io/$GCP_PROJECT_ID/vite-pwa-test:$GITHUB_SHA \
+          --platform managed \
+          --region $REGION \
+          --allow-unauthenticated \
+          --port 8080 \
+          --memory 512Mi \
+          --cpu 1 \
+          --min-instances 0 \
+          --max-instances 10 \
+          --timeout 300 \
+          --set-env-vars="NODE_ENV=production"
+    
+    - name: Get service URL
+      env:
+        GCP_PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+        SERVICE_NAME: vite-pwa-test
+        REGION: us-central1
+      run: |
+        SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --format="value(status.url)")
+        echo "Service deployed at: $SERVICE_URL"
+        echo "SERVICE_URL=$SERVICE_URL" >> $GITHUB_ENV
+    
+    - name: Create deployment comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          if (context.eventName === 'push') {
+            github.rest.repos.createCommitComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              commit_sha: context.sha,
+              body: `🚀 Deployed to Cloud Run: ${{ env.SERVICE_URL }}`
+            })
+          }
