@@ -1,16 +1,15 @@
 name: Deploy to Cloud Run
 
 on:
-  push:
-    branches: [ main ]
   workflow_run:
     workflows: ["CI/CD"]
     types:
       - completed
+    branches: [ main ]
 
 jobs:
   deploy:
-    if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'push'
+    if: github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     
     environment: production
@@ -76,11 +75,9 @@ jobs:
       uses: actions/github-script@v7
       with:
         script: |
-          if (context.eventName === 'push') {
-            github.rest.repos.createCommitComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              commit_sha: context.sha,
-              body: `🚀 Deployed to Cloud Run: ${{ env.SERVICE_URL }}`
-            })
-          }
+          github.rest.repos.createCommitComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            commit_sha: context.payload.workflow_run.head_sha,
+            body: `🚀 Deployed to Cloud Run: ${{ env.SERVICE_URL }}`
+          })
