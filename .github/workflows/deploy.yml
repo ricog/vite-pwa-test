@@ -1,11 +1,12 @@
 name: Deploy to Cloud Run
 
 on:
-  workflow_run:
-    workflows: ["CI/CD"]
-    types:
-      - completed
-    branches: [ main ]
+  # Disabled - Google Cloud resources removed
+  # workflow_run:
+  #   workflows: ["CI/CD"]
+  #   types:
+  #     - completed
+  #   branches: [ main ]
 
 jobs:
   deploy:
