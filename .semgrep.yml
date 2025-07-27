@@ -1,0 +1,51 @@
+rules:
+  - id: hardcoded-api-key
+    patterns:
+      - pattern-either:
+          - pattern: |
+              const $KEY = "$VALUE"
+          - pattern: |
+              let $KEY = "$VALUE"
+          - pattern: |
+              var $KEY = "$VALUE"
+    pattern-where:
+      - metavariable-regex:
+          metavariable: $KEY
+          regex: (?i)(api[_-]?key|secret|token|password|pwd)
+      - metavariable-regex:
+          metavariable: $VALUE
+          regex: .{8,}
+    message: Potential hardcoded API key or secret detected
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      technology:
+        - javascript
+        - typescript
+
+  - id: dangerous-innerhtml
+    patterns:
+      - pattern: |
+          dangerouslySetInnerHTML={{ __html: $VALUE }}
+    message: Using dangerouslySetInnerHTML can lead to XSS vulnerabilities
+    languages: [javascript, typescript]
+    severity: WARNING
+    metadata:
+      category: security
+      technology:
+        - react
+
+  - id: console-log-in-production
+    patterns:
+      - pattern: console.log(...)
+      - pattern: console.warn(...)
+      - pattern: console.error(...)
+    message: Console statements should be removed in production code
+    languages: [javascript, typescript]
+    severity: INFO
+    metadata:
+      category: performance
+      technology:
+        - javascript
+        - typescript
