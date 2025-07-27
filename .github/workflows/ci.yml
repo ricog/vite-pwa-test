@@ -26,6 +26,12 @@ jobs:
     - name: Install dependencies
       run: npm ci
     
+    - name: Check for merge conflict markers
+      run: |
+        if git grep -n "^<<<<<<<\|^=======$\|^>>>>>>>"; then
+          echo "Merge conflict markers found in the codebase"
+          exit 1
+        fi
     - name: Run linter
       run: npm run lint
     
