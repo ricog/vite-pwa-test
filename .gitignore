@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Security scan results
+semgrep-results.json
+semgrep-results.sarif
