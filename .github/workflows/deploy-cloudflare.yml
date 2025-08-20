@@ -73,15 +73,22 @@ jobs:
       with:
         script: |
           const deployUrl = '${{ steps.deploy.outputs.deployment-url }}';
+          const productionUrl = 'https://${{ steps.project-name.outputs.name }}.pages.dev';
           const deploymentId = ${{ steps.deployment.outputs.result }};
+          
+          // Use production URL as the main environment URL for production deployments
+          const environmentUrl = productionUrl;
+          const description = deployUrl 
+            ? `Production deployment successful - Live: ${productionUrl} | Commit: ${deployUrl}`
+            : 'Production deployment failed';
           
           await github.rest.repos.createDeploymentStatus({
             owner: context.repo.owner,
             repo: context.repo.repo,
             deployment_id: deploymentId,
             state: deployUrl ? 'success' : 'failure',
-            environment_url: deployUrl,
-            description: deployUrl ? 'Production deployment successful' : 'Production deployment failed'
+            environment_url: environmentUrl,
+            description: description
           });
 
   deploy-preview:
