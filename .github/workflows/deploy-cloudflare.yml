@@ -19,6 +19,10 @@ jobs:
     if: github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: read
+      deployments: write
+    
     environment: production
     
     steps:
@@ -37,11 +41,48 @@ jobs:
     - name: Build application
       run: npm run build
     
+    - name: Get project name from wrangler.toml
+      id: project-name
+      run: echo "name=$(grep '^name = ' wrangler.toml | cut -d '"' -f 2)" >> $GITHUB_OUTPUT
+    
+    - name: Create GitHub deployment
+      id: deployment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployment = await github.rest.repos.createDeployment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: context.sha,
+            environment: 'production',
+            description: 'Production deployment',
+            auto_merge: false,
+            required_contexts: []
+          });
+          return deployment.data.id;
+    
     - name: Deploy to Cloudflare Pages
+      id: deploy
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: pages deploy ./dist --project-name=vite-pwa-test
+        command: pages deploy ./dist --project-name=${{ steps.project-name.outputs.name }}
+    
+    - name: Update deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployUrl = '${{ steps.deploy.outputs.deployment-url }}';
+          const deploymentId = ${{ steps.deployment.outputs.result }};
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deploymentId,
+            state: deployUrl ? 'success' : 'failure',
+            environment_url: deployUrl,
+            description: deployUrl ? 'Production deployment successful' : 'Production deployment failed'
+          });
 
   deploy-preview:
     if: github.event_name == 'pull_request' && github.actor != 'dependabot[bot]'
@@ -49,7 +90,7 @@ jobs:
     
     permissions:
       contents: read
-      pull-requests: write
+      deployments: write
     
     steps:
     - name: Checkout
@@ -67,19 +108,45 @@ jobs:
     - name: Build application
       run: npm run build
     
-    - name: Deploy Preview to Cloudflare Pages
-      uses: cloudflare/wrangler-action@v3
-      with:
-        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-        command: pages deploy ./dist --project-name=vite-pwa-test
+    - name: Get project name from wrangler.toml
+      id: project-name
+      run: echo "name=$(grep '^name = ' wrangler.toml | cut -d '"' -f 2)" >> $GITHUB_OUTPUT
     
-    - name: Comment Preview URL
+    - name: Create GitHub deployment
+      id: deployment
       uses: actions/github-script@v7
       with:
         script: |
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          const deployment = await github.rest.repos.createDeployment({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: '🚀 **Preview Deployment**: https://vite-pwa-test-au1.pages.dev\n\nThis preview will be updated with each push to this PR.'
-          })
+            ref: '${{ github.event.pull_request.head.sha }}',
+            environment: 'preview',
+            description: 'Preview deployment',
+            auto_merge: false,
+            required_contexts: []
+          });
+          return deployment.data.id;
+    
+    - name: Deploy Preview to Cloudflare Pages
+      id: deploy
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        command: pages deploy ./dist --project-name=${{ steps.project-name.outputs.name }}
+    
+    - name: Update deployment status
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const deployUrl = '${{ steps.deploy.outputs.deployment-url }}';
+          const deploymentId = ${{ steps.deployment.outputs.result }};
+          
+          await github.rest.repos.createDeploymentStatus({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            deployment_id: deploymentId,
+            state: deployUrl ? 'success' : 'failure',
+            environment_url: deployUrl,
+            description: deployUrl ? 'Preview deployment successful' : 'Preview deployment failed'
+          });
