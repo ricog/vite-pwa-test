@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint .",
+    "lint": "npm run lint:strict",
+    "lint:relaxed": "ESLINT_RELAXED=true eslint .",
+    "lint:strict": "eslint .",
     "preview": "vite preview",
     "deploy": "npm run build && wrangler pages deploy ./dist --project-name=vite-pwa-test",
     "deploy:preview": "npm run build && wrangler pages deploy ./dist --project-name=vite-pwa-test",

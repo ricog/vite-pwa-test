@@ -7,25 +7,37 @@ import reactDom from 'eslint-plugin-react-dom'
 import tseslint from 'typescript-eslint'
 import { globalIgnores } from 'eslint/config'
 
+const isRelaxed = process.env.ESLINT_RELAXED === 'true';
+
 export default tseslint.config([
   globalIgnores(['dist']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
       js.configs.recommended,
-      ...tseslint.configs.recommendedTypeChecked,
+      // Switch between basic and type-aware rules
+      ...(isRelaxed 
+        ? [tseslint.configs.recommended]
+        : [tseslint.configs.recommendedTypeChecked]
+      ),
       reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
-      reactX.configs['recommended-typescript'],
-      reactDom.configs.recommended,
+      // Only include React plugins in strict mode
+      ...(isRelaxed ? [] : [
+        reactX.configs['recommended-typescript'],
+        reactDom.configs.recommended,
+      ])
     ],
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
+      // Only add parser options for type-aware linting
+      ...(isRelaxed ? {} : {
+        parserOptions: {
+          project: ['./tsconfig.node.json', './tsconfig.app.json'],
+          tsconfigRootDir: import.meta.dirname,
+        }
+      })
     },
   },
 ])
