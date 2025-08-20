@@ -16,16 +16,17 @@ function App() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
         <div className="flex justify-center gap-4 mb-6">
-          <a href="https://vite.dev" target="_blank">
+          <a href="https://vite.dev" target="_blank" rel="noreferrer noopener">
             <img src={viteLogo} className="h-16 w-16 hover:opacity-80 transition-opacity" alt="Vite logo" />
           </a>
-          <a href="https://react.dev" target="_blank">
+          <a href="https://react.dev" target="_blank" rel="noreferrer noopener">
             <img src={reactLogo} className="h-16 w-16 hover:opacity-80 transition-opacity animate-spin" alt="React logo" />
           </a>
         </div>
         <h1 className="text-3xl font-bold text-gray-800 mb-6">Vite PWA + React</h1>
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <button 
+            type="button"
             onClick={() => setCount((count) => count + 1)}
             className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded transition-colors"
           >
