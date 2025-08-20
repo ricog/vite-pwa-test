@@ -13,9 +13,6 @@ jobs:
     name: Security Scan
     runs-on: ubuntu-latest
     
-    container:
-      image: returntocorp/semgrep
-
     permissions:
       contents: read
       security-events: write
@@ -25,23 +22,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
       - name: Run Semgrep scan
         run: |
-          # Run semgrep and generate JSON output
-          semgrep \
-            --config=p/security-audit \
-            --config=p/secrets \
-            --config=p/owasp-top-ten \
-            --config=p/react \
-            --config=p/typescript \
-            --config=p/javascript \
-            --config=.semgrep.yml \
-            --json \
-            --output=semgrep-results.json \
-            --verbose || true
+          # Run semgrep using npm script (generates JSON output)
+          npm run security || true
           
-          # Also generate SARIF output in a separate run
-          semgrep \
+          # Also generate SARIF output for security tools
+          docker run --rm -v "${PWD}:/src" returntocorp/semgrep semgrep \
             --config=p/security-audit \
             --config=p/secrets \
             --config=p/owasp-top-ten \

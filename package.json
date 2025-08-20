@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "deploy": "npm run build && wrangler pages deploy ./dist --project-name=vite-pwa-test",
     "deploy:preview": "npm run build && wrangler pages deploy ./dist --project-name=vite-pwa-test",
-    "wrangler": "wrangler"
+    "wrangler": "wrangler",
+    "security": "docker run --rm -v \"${PWD}:/src\" returntocorp/semgrep semgrep --config=p/security-audit --config=p/secrets --config=p/owasp-top-ten --config=p/react --config=p/typescript --config=p/javascript --config=.semgrep.yml --json --output=semgrep-results.json"
   },
   "dependencies": {
     "react": "^19.1.0",
