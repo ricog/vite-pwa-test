@@ -16,7 +16,7 @@
     "security": "docker run --rm -v \"${PWD}:/src\" returntocorp/semgrep semgrep --config=p/security-audit --config=p/secrets --config=p/owasp-top-ten --config=p/react --config=p/typescript --config=p/javascript --config=.semgrep.yml --json --output=semgrep-results.json"
   },
   "dependencies": {
-    "react": "^19.2.1",
+    "react": "^19.2.3",
     "react-dom": "^19.2.1"
   },
   "devDependencies": {
