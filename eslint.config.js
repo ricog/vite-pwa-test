@@ -16,11 +16,10 @@ export default tseslint.config([
     extends: [
       js.configs.recommended,
       // Switch between basic and type-aware rules
-      ...(isRelaxed 
+      ...(isRelaxed
         ? [tseslint.configs.recommended]
         : [tseslint.configs.recommendedTypeChecked]
       ),
-      reactHooks.configs['recommended-latest'],
       reactRefresh.configs.vite,
       // Only include React plugins in strict mode
       ...(isRelaxed ? [] : [
@@ -28,6 +27,12 @@ export default tseslint.config([
         reactDom.configs.recommended,
       ])
     ],
+    plugins: {
+      'react-hooks': reactHooks,
+    },
+    rules: {
+      ...reactHooks.configs.recommended.rules,
+    },
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
