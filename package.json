@@ -21,7 +21,10 @@
     "react-dom": "^19.2.3"
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": "eslint --fix"
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "bash -c 'tsc -b --noEmit'"
+    ]
   },
   "devDependencies": {
     "@eslint/js": "^9.39.2",
