@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 
-// Retreive and display the PWA counter
+// Retrieve and display the PWA counter
 function App() {
   const [count, setCount] = useState(() => {
     const counterValue = localStorage.getItem('pwa-counter')
