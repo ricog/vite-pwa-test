@@ -4,8 +4,7 @@ import viteLogo from '/vite.svg'
 
 function App() {
   const [count, setCount] = useState(() => {
-    const savedCount = localStorage.getItem('pwa-counter')
-    return savedCount ? parseInt(savedCount, 10) : 0
+    return parseInt(localStorage.getItem('pwa-counter') ?? '', 10) || 0
   })
 
   useEffect(() => {

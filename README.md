@@ -14,6 +14,7 @@ A production-ready Progressive Web App built with React, TypeScript, and Vite, f
 - **Hot Module Replacement** for instant updates during development
 - **Production-ready ESLint** with type-aware linting and React best practices
 - **Flexible linting modes**: strict (default) or relaxed for development
+- **Comprehensive testing** with Vitest, React Testing Library, and 90% coverage thresholds
 - **Security scanning** with Semgrep integration
 
 ### ☁️ Deployment & CI/CD
@@ -45,6 +46,18 @@ npm run lint
 
 # Run relaxed linting
 npm run lint:relaxed
+
+# Run tests
+npm test
+
+# Run tests with coverage
+npm run test:coverage
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run full validation (build + lint + test)
+npm run validate
 
 # Run security scan
 npm run security
