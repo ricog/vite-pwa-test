@@ -108,8 +108,7 @@ describe('App', () => {
       localStorage.setItem('pwa-counter', 'invalid')
       render(<App />)
 
-      const button = screen.getByRole('button')
-      expect(button.textContent).toContain('NaN')
+      expect(screen.getByRole('button', { name: /count is 0/i })).toBeInTheDocument()
     })
 
     it('handles localStorage getItem returning null', () => {
