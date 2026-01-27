@@ -10,7 +10,7 @@ import { globalIgnores } from 'eslint/config'
 const isRelaxed = process.env.ESLINT_RELAXED === 'true';
 
 export default tseslint.config([
-  globalIgnores(['dist']),
+  globalIgnores(['dist', 'coverage']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
