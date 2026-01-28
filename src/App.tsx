@@ -5,11 +5,7 @@ import viteLogo from '/vite.svg'
 // Retrieve and display the PWA counter
 function App() {
   const [count, setCount] = useState(() => {
-    const counterValue = localStorage.getItem('pwa-counter')
-    if (counterValue) {
-      return parseInt(counterValue, 10)
-    }
-    return 0
+    return parseInt(localStorage.getItem('pwa-counter') ?? '', 10) || 0
   })
 
   useEffect(() => {
@@ -20,10 +16,10 @@ function App() {
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
         <div className="flex justify-center gap-4 mb-6">
-          <a href="https://vite.dev" target="_blank">
+          <a href="https://vite.dev" target="_blank" rel="noreferrer noopener">
             <img src={viteLogo} className="h-16 w-16 hover:opacity-80 transition-opacity" alt="Vite logo" />
           </a>
-          <a href="https://react.dev" target="_blank">
+          <a href="https://react.dev" target="_blank" rel="noreferrer noopener">
             <img src={reactLogo} className="h-16 w-16 hover:opacity-80 transition-opacity animate-spin" alt="React logo" />
           </a>
         </div>
@@ -37,7 +33,7 @@ function App() {
             count is {count}
           </button>
           <p className="text-gray-600 mt-4">
-            Edit <code className="bg-gray-200 px-1 rounded">src/App.tsx</code> and save to tets HMR
+            Edit <code className="bg-gray-200 px-1 rounded">src/App.tsx</code> and save to test HMR
           </p>
         </div>
         <p className="text-gray-500 text-sm">
