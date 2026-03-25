@@ -1,3 +1,4 @@
 name = "vite-pwa-test"
+account_id = "951b2439e1a1c52e6bfe8ebc4d87d236"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "./dist"
